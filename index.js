@@ -1,5 +1,3 @@
-const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-const request = require("request");
 const Twitch = require("twitch").default;
 const ChatClient = require("twitch-chat-client").default;
 
@@ -17,7 +15,7 @@ const AutoGameHoster =
 
 	async update()
 	{		
-		if (this.currentHost !== null && this.currentHost.gameId != GAME_ID)
+		if (this.currentHost !== null || this.currentHost.gameId != GAME_ID)
 		{
 			this.chatClient.unhost(channel.name);
 			this.currentHost = null;
