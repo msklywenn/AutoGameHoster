@@ -15,24 +15,28 @@ const AutoGameHoster =
 
 	async update()
 	{		
-		if (this.currentHost !== null || this.currentHost.gameId != GAME_ID)
+                // check current host is still playing our target game
+		if (this.currentHost !== null && this.currentHost.gameId != GAME_ID)
 		{
 			this.chatClient.unhost(channel.name);
 			this.currentHost = null;
 		}
 
+                // check our channel isn't streaming
 		var me = await this.client.helix.streams.getStreamByUserName(USERNAME);
 		if (me !== null && me.type != HelixStreamType.None)
 			return;
 		
+                // check that we are allowed to host anyone
 		if (this.hostsLeft == 0)
 			return;
 		
+                // find the streamer with most views on target game
 		var streams = await this.client.helix.streams.getStreams({game: GAME_ID});
 		streams = await streams.getAll();
 		if (streams !== null && streams.length > 0)
 		{
-			var bestStream = streams[0]; // list is ordered by viewers
+			var bestStream = streams[0]; // list is ordered by viewers so first is best
 			if (bestStream !== this.currentHost && (this.currentHost === null || this.currentHost.viewers * BETTER_RATIO < bestStream.viewers))
 			{
 				var bestUser = await this.client.helix.users.getUserById(bestStream.userId);
@@ -48,6 +52,10 @@ const AutoGameHoster =
 					});
 			}
 		}
+                else
+                {
+                    console.log("noone to host");
+                }
 	},
 
 	async onHostsRemaining(channel, numberOfHosts)
