@@ -2,7 +2,17 @@ const Twitch = require("twitch").default;
 const Discord = require("discord.js");
 const ChatClient = require("twitch-chat-client").default;
 
-const { CODE, CLIENT_ID, CLIENT_SECRET, USERNAME, GAME, DISCORD, DISCORD_CHANNEL } = process.env;
+// environment variables to be set for script to run properly
+const {
+    CODE, // generate code with authorization code flow
+          // see: https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/#oauth-authorization-code-flow
+    CLIENT_ID, // client id of twitch app
+    CLIENT_SECRET, // client secret of twitch app (for token renewal)
+    USERNAME, // twitch username
+    GAME, // name of the game to host
+    DISCORD, // discord app token
+    DISCORD_CHANNEL // discord channel ID to put messages on
+} = process.env;
 
 const UPDATE_DELAY = 60000; // milliseconds, 60000 = every minute
 const BETTER_RATIO = 1.5; // how much more many viewers a streamer must have to cut currently hosted streamer
