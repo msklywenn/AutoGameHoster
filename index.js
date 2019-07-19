@@ -75,7 +75,7 @@ const AutoGameHoster =
                         streams.forEach(stream => {
                             if (stream != bestStream && !this.knownStreams.includes(stream))
                             {
-                                this.discordChannel.send(`${bestUser.displayName} is streaming Pawarumi <3 ${channel.url}`);
+                                this.discordChannel.send(`${bestUser.displayName} is streaming ${GAME} <3 ${channel.url}`);
                                 array_push(this.knownStreams, stream);
                             }
                         });
