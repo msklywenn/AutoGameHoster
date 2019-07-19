@@ -106,7 +106,7 @@ const AutoGameHoster =
                             bestStream = null;
                         }
 
-                        streams.forEach(stream => {
+                        streams.forEach(async stream => {
                             if (!this.knownStreams.includes(stream))
                             {
                                 if (stream != bestStream)
