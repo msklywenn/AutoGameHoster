@@ -1,6 +1,9 @@
 # AutoGameHoster
 
-Automatically hosts on your twitch channel the streamer with the biggest number of views on a specified game
+Automatically hosts on your twitch channel the streamer with the biggest number of views on a specified game.
+Also sends a message on a specific channel on discord.
+
+It will also send a message if someone starts streaming the game, even if it's not hosted on your channel.
 
 
 # How to start
@@ -10,12 +13,15 @@ First, install all dependencies with NPM.
 
 Second, set the following environment variables:
  * USERNAME: your twitch username
- * GAME_ID: the twitch game id you're interested in. (Eg: Pawarumi is 493239, Hearthstone is 138585, etc)
+ * GAME: the twitch game
  * CLIENT_ID: ID from an app on the twitch dev dashboard
- * TOKEN: You get it by going to `https://id.twitch.tv/oauth2/authorize?client_secret=SECRET&client_id=CLIENT&redirect_uri=REDIRECT&response_type=token&scope=chat:edit+chat:read+channel_editor`. Replace SECRET with the generated app client secret, CLIENT with the same client app ID and REDIRECT with the OAuth redirect URL set in the twitch dashboard. The token will be in the redirect URL after #access_token=.
+ * CLIENT_SECRET: secret from the app on twitch dev dashboard (for token renewal)
+ * CODE: Follow the Twitch OAuth Authorization Code Flow to generate it
+ * DISCORD: token of the discord app you created
+ * DISCORD_CHANNEL: discord channel ID (not name, enable dev mode in appearance to get it) to send messages to
 
 Then you just start node on index.js.
 
 Basically:
 
-`$ TOKEN=<token> CLIENT_ID=<client id> GAME_ID=<game id> USERNAME=<username> node index.js`
+`$ CODE=<token> CLIENT_ID=<client id> CLIENT_SECRET=<secret> GAME=<game name> USERNAME=<username> DISCORD=<token> DISCORD_CHANNEL=<id> node index.js`
