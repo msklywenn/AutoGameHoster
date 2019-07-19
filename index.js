@@ -31,19 +31,20 @@ const {
 const UPDATE_DELAY = 60000; // milliseconds, 60000 = every minute
 const BETTER_RATIO = 1.5; // how much more many viewers a streamer must have to cut currently hosted streamer
 
-// {0} = streamer name
-// {1} = streamer url
-// {2} = game name
+// {0} = game name
+// {1} = streamer name
+// {2} = stream title
+// {3} = streamer url
 const HostMessages = [
-    "{0} is streaming {2} and we're hosting him/her! {1}",
-    "We're now hosting {0}! {1}",
-    "So cool that {0} is streaming {2}! Hosted! {1}"
+    "{1} is streaming {0} and we're hosting him/her! {2} {3}",
+    "We're now hosting {0}! {2} {3}",
+    "So cool that {1} is streaming {0}! Hosted! {2} {3}"
     ];
 
 const StreamMessages = [
-    "Hey, cool, {0} is streaming {2} at {1}",
-    "Nice! {0} started streaming {2} <3 {1}",
-    "Go watch {0}, (s)he's streaming {2}! {1}"
+    "Hey, cool, {1} is streaming {0} at {3}: {2}",
+    "Nice! {1} started streaming {0} <3 {2} {3}",
+    "Go watch {1}, (s)he's streaming {0}! {2} {3}"
     ];
 
 const AutoGameHoster =
@@ -93,8 +94,8 @@ const AutoGameHoster =
 						this.currentHost = bestStream;
 						this.hostsLeft--;
                                                 if (this.discordChannel != null)
-                                                    this.discordChannel.send(
-                                                        HostMessages.random().format(bestUser.displayName, channel.url, GAME));
+                                                    this.discordChannel.send(HostMessages.random().format(
+                                                                GAME, bestUser.displayName, channel.displayName, channel.url));
 					})
 					.catch((e) => {
 						console.error("hosting " + bestUser.displayName + " failed: " + e)
@@ -109,7 +110,11 @@ const AutoGameHoster =
                             if (!this.knownStreams.includes(stream))
                             {
                                 if (stream != bestStream)
-                                    this.discordChannel.send(StreamMessages.random().format(bestUser.displayName, channel.url, GAME));
+                                {
+                                    var user = await this.client.helix.users.getUserById(stream.userId);
+                                    this.discordChannel.send(StreamMessages.random().format(
+                                                GAME, user.displayName, channel.displayName, channel.url));
+                                }
                                 array_push(this.knownStreams, stream);
                             }
                         });
