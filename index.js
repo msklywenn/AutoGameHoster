@@ -1,3 +1,16 @@
+String.prototype.format = function()
+{
+    var that = this;
+    for (var arg in arguments)
+        that = that.replace("{" + arg + "}", arguments[arg]);
+    return that;
+}
+
+Array.prototype.random = function()
+{
+    return this[Math.floor(Math.random() * this.length)];
+}
+
 const Twitch = require("twitch").default;
 const Discord = require("discord.js");
 const ChatClient = require("twitch-chat-client").default;
@@ -6,6 +19,7 @@ const ChatClient = require("twitch-chat-client").default;
 const {
     CODE, // generate code with authorization code flow
           // see: https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/#oauth-authorization-code-flow
+          // scope=chat:edit+chat:read+channel_editor
     CLIENT_ID, // client id of twitch app
     CLIENT_SECRET, // client secret of twitch app (for token renewal)
     USERNAME, // twitch username
@@ -16,6 +30,21 @@ const {
 
 const UPDATE_DELAY = 60000; // milliseconds, 60000 = every minute
 const BETTER_RATIO = 1.5; // how much more many viewers a streamer must have to cut currently hosted streamer
+
+// {0} = streamer name
+// {1} = streamer url
+// {2} = game name
+const HostMessages = [
+    "{0} is streaming {2} and we're hosting him/her! {1}",
+    "We're now hosting {0}! {1}",
+    "So cool that {0} is streaming {2}! Hosted! {1}"
+    ];
+
+const StreamMessages = [
+    "Hey, cool, {0} is streaming {2} at {1}",
+    "Nice! {0} started streaming {2} <3 {1}",
+    "Go watch {0}, (s)he's streaming {2}! {1}"
+    ];
 
 const AutoGameHoster =
 {
@@ -46,17 +75,15 @@ const AutoGameHoster =
 		if (me !== null && me.type != HelixStreamType.None)
 			return;
 		
-                // check that we are allowed to host anyone
-		if (this.hostsLeft == 0)
-			return;
-		
                 // find the streamer with most views on target game
 		var streams = await this.client.helix.streams.getStreams({game: this.game.id});
 		streams = await streams.getAll();
 		if (streams !== null && streams.length > 0)
 		{
 			var bestStream = streams[0]; // list is ordered by viewers so first is best
-			if (bestStream !== this.currentHost
+
+                        // check that we are allowed to host anyone
+			if (this.hostsLeft > 0 && bestStream !== this.currentHost
                                 && (this.currentHost === null || this.currentHost.viewers * BETTER_RATIO < bestStream.viewers))
 			{
 				var bestUser = await this.client.helix.users.getUserById(bestStream.userId);
@@ -66,16 +93,23 @@ const AutoGameHoster =
 						this.currentHost = bestStream;
 						this.hostsLeft--;
                                                 if (this.discordChannel != null)
-                                                    this.discordChannel.send(`We're now hosting ${bestUser.displayName}! ${channel.url}`);
+                                                    this.discordChannel.send(
+                                                        HostMessages.random().format(bestUser.displayName, channel.url, GAME));
 					})
 					.catch((e) => {
 						console.error("hosting " + bestUser.displayName + " failed: " + e)
 					});
 			}
+                        else
+                        {
+                            bestStream = null;
+                        }
+
                         streams.forEach(stream => {
-                            if (stream != bestStream && !this.knownStreams.includes(stream))
+                            if (!this.knownStreams.includes(stream))
                             {
-                                this.discordChannel.send(`${bestUser.displayName} is streaming ${GAME} <3 ${channel.url}`);
+                                if (stream != bestStream)
+                                    this.discordChannel.send(StreamMessages.random().format(bestUser.displayName, channel.url, GAME));
                                 array_push(this.knownStreams, stream);
                             }
                         });
@@ -91,7 +125,7 @@ const AutoGameHoster =
 	{
 		if (channel.endsWith(USERNAME))
 		{
-			console.log(numberOfHosts + " hosts left in the next 30min.");
+			console.log(numberOfHosts + " host(s) left in the next 30min.");
 			this.lastNbHosts = Date.now();
 			this.hostsLeft = numberOfHosts;
 		}

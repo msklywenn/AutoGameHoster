@@ -16,7 +16,7 @@ Second, set the following environment variables:
  * GAME: the twitch game
  * CLIENT_ID: ID from an app on the twitch dev dashboard
  * CLIENT_SECRET: secret from the app on twitch dev dashboard (for token renewal)
- * CODE: Follow the Twitch OAuth Authorization Code Flow to generate it
+ * CODE: Follow the Twitch OAuth Authorization Code Flow to generate it. scope=chat:edit+chat:read+channel_editor
  * DISCORD: token of the discord app you created
  * DISCORD_CHANNEL: discord channel ID (not name, enable dev mode in appearance to get it) to send messages to
 
