@@ -57,13 +57,6 @@ const AutoGameHoster =
 
 	async update()
 	{
-            // reconnect if necessary
-            if (this.token.isExpired)
-            {
-                this.token = await Twitch.refreshAccessToken(CLIENT_ID, CLIENT_SECRET, token.refreshToken);
-                await connect();
-            }
-
                 // check current host is still playing our target game
 		if (this.currentHost !== null && this.currentHost.gameId != this.game.id)
 		{
@@ -111,11 +104,11 @@ const AutoGameHoster =
                             {
                                 if (stream != bestStream)
                                 {
-                                    var user = await this.client.helix.users.getUserById(stream.userId);
+                                    var user = await stream.getUser();
                                     this.discordChannel.send(StreamMessages.random().format(
                                                 GAME, user.displayName, channel.displayName, channel.url));
                                 }
-                                array_push(this.knownStreams, stream);
+                               this.knownStreams.push(stream);
                             }
                         });
                         this.knownStreams = this.knownStreams.filter(stream => streams.includes(stream));
@@ -158,7 +151,8 @@ const AutoGameHoster =
 
         async connect()
         {
-                this.client = await Twitch.withCredentials(CLIENT_ID, this.token.accessToken);
+                var refresh = this.token.refreshToken;
+                this.client = await Twitch.withCredentials(CLIENT_ID, this.token.accessToken, undefined, {CLIENT_SECRET, refresh});
                 this.game = await this.client.helix.games.getGameByName(GAME);
                 if (this.game != null)
                 {
