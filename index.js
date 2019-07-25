@@ -11,6 +11,12 @@ Array.prototype.random = function()
     return this[Math.floor(Math.random() * this.length)];
 }
 
+async function asyncForEach(array, callback) {
+      for (let index = 0; index < array.length; index++) {
+              await callback(array[index], index, array);
+                }
+}
+
 const Twitch = require("twitch").default;
 const Discord = require("discord.js");
 const ChatClient = require("twitch-chat-client").default;
@@ -99,7 +105,7 @@ const AutoGameHoster =
                             bestStream = null;
                         }
 
-                        streams.forEach(async stream => {
+                        await asyncForEach(streams, async stream => {
                             if (!this.knownStreams.includes(stream))
                             {
                                 if (stream != bestStream)
