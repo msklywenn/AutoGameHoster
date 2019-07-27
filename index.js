@@ -124,9 +124,10 @@ const AutoGameHoster =
                             {
                                 if (stream != bestStream)
                                 {
-                                    var user = await stream.getUser();
+                                    var user = await this.client.helix.users.getUserById(stream.userId);
+                                    var channel = await this.client.channels.getChannel(user);
                                     this.discordChannel.send(StreamMessages.random().format(
-                                                GAME, user.displayName, channel.displayName, channel.url));
+                                        GAME, user.displayName, channel.displayName, channel.url));
                                 }
                                this.knownStreams.push(stream);
                             }
